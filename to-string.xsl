@@ -45,7 +45,7 @@
       <xsl:with-param name="depth" select="$depth"/>
     </xsl:apply-templates>
     <span id="{generate-id(.)}">
-      <xsl:value-of select="replace(replace(.,'&lt;','&amp;lt;'),'&amp;','&amp;amp;')"/>
+      <xsl:value-of select="replace(replace(string(.),'&lt;','&amp;lt;'),'&amp;','&amp;amp;')"/>
     </span>
   </xsl:template>
 
@@ -53,7 +53,7 @@
     <xsl:text> </xsl:text>
     <xsl:value-of select="name()"/>
     <xsl:text>="</xsl:text>
-    <xsl:value-of select="replace(replace(replace(.,'&lt;','&amp;lt;'),'&amp;','&amp;amp;'),'&quot;','&amp;quot;')"/>
+    <xsl:value-of select="replace(replace(replace(string(.),'&lt;','&amp;lt;'),'&amp;','&amp;amp;'),'&quot;','&amp;quot;')"/>
     <xsl:text>"</xsl:text>
   </xsl:template>
 
@@ -77,5 +77,7 @@
       <xsl:value-of select="string-join(for $n in (1 to $depth) return '  ','')"/>
     </xsl:if>
   </xsl:template>
+
+  <xsl:template mode="to-string" match="xsl:stylesheet/@default-validation | xsl:stylesheet/@input-type-annotations"/>
 
 </xsl:stylesheet>
