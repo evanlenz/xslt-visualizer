@@ -1,0 +1,5 @@
+  <doc>
+    <heading>This is the title</heading>
+    <para>This is the first paragraph.</para>
+    <para>This is the <emphasis>second</emphasis> paragraph.</para>
+  </doc>
