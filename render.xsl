@@ -15,6 +15,8 @@
 
   <xsl:variable name="rule-tree" select="doc(concat($code-dir,'rule-tree.xml'))"/>
 
+  <xsl:variable name="source-tree" select="xdmp:directory('/sources/')[source-doc]"/>
+
   <xsl:template match="/">
     <xsl:variable name="foci-array-objects"><!-- as="element()*">-->
       <xsl:apply-templates mode="focus-object" select="trace:focus"/>
@@ -321,19 +323,24 @@
             <input id="accumulateLines" type="checkbox"/>
             Cumulative?
             <br/>
-            <input id="breadthFirst" type="checkbox" checked="checked"/>
+            <input id="breadthFirst" type="checkbox"/>
             Breadth first?
           </div>
         </div>
         <table cellspacing="50">
           <tr valign="top">
             <td style="vertical-align: top">
+              <pre>
+                <xsl:apply-templates mode="source-tree" select="$source-tree"/>
+              </pre>
+              <!--
               <xsl:for-each select="distinct-values($foci-array-objects//contextId)">
-                <xsl:sort select="."/> <!-- arbitrary stable order for now -->
+                <xsl:sort select="."/> <!- - arbitrary stable order for now - ->
                 <div id="{.}">
                   <xsl:value-of select="."/>
                 </div>
               </xsl:for-each>
+              -->
             </td>
             <td style="vertical-align: top">
               <xsl:apply-templates mode="mode-tree" select="$rule-tree"/>
@@ -366,6 +373,17 @@
       </body>
     </html>
   </xsl:template>
+
+          <xsl:template mode="source-tree" match="/source-doc">
+            <span id="{@id}">Ⓓ</span>
+            <xsl:apply-templates mode="#current"/>
+          </xsl:template>
+
+          <xsl:template mode="source-tree" match="@* | node()">
+            <xsl:copy>
+              <xsl:apply-templates mode="#current" select="@* | node()"/>
+            </xsl:copy>
+          </xsl:template>
 
 
   <xsl:template mode="array-list-syntax" match="array">
