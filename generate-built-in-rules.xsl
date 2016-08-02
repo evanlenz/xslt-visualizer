@@ -35,7 +35,7 @@
     <xsl:param name="insert-import" select="false()" tunnel="yes"/>
     <xsl:if test="$insert-import">
       <out:import href="{$built-in-rules-xsl}"/>
-      <trace:result-document href="{$built-in-rules-xsl}">
+      <trace:result-document href="{$built-in-rules-xsl}" built-in-rules="yes">
         <out:stylesheet version="2.0">
           <xsl:namespace name="trace" select="'http://lenzconsulting.com/tracexslt'"/>
 

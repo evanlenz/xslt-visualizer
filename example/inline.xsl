@@ -3,9 +3,9 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   exclude-result-prefixes="xs">
 
-  <xsl:template match="emphasis">
+  <xsl:template mode="inline" match="emphasis">
     <em>
-      <xsl:apply-templates/>
+      <xsl:apply-templates mode="#current"/>
     </em>
   </xsl:template>
 

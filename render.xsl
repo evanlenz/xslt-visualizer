@@ -6,9 +6,14 @@
   xmlns:my="http://localhost"
   exclude-result-prefixes="xs trace my xdmp">
 
+  <xsl:import href="html-rule-tree.xsl"/>
+
   <xsl:output method="html" indent="no"/>
 
   <xsl:param name="indent" select="true()"/>
+  <xsl:param name="code-dir"/>
+
+  <xsl:variable name="rule-tree" select="doc(concat($code-dir,'rule-tree.xml'))"/>
 
   <xsl:template match="/">
     <xsl:variable name="foci-array-objects"><!-- as="element()*">-->
@@ -67,6 +72,55 @@
           var currentOutput;
           //var currentFoci;
           var colors = {};
+          var accumulateLines;
+
+          var drawConnectors = function() {
+            Belay.off();
+
+            $(".start,.end").css("visibility","hidden");
+
+            //console.log(sliderPosition);
+
+            var showFoci = function(index) {
+              var currentFoci = slider[index];
+              for (var i=0; currentFoci.length > i; i++) {
+                //console.log("processing focus "+i);
+                //console.log(focus);
+                var focus = foci[currentFoci[i]];
+
+                var invocationId = focus.invocationId;
+
+                //initializeColors(invocationId);
+
+                Belay.set('strokeColor', colors[invocationId]);
+
+                <!-- Using a different color for each focus --><!--
+                if (focus.color == undefined)
+                  focus.color = getRandomColor();
+                Belay.set('strokeColor', focus.color);
+                -->
+
+                /*
+                $("#"+focus.outputId).css("display","inline");
+                $("#"+focus.outputId).css("background-color",colors[invocationId]);
+                */
+
+                drawLine(focus.contextId, focus.ruleId);
+                drawLine(focus.ruleId, focus.outputStart);
+                drawLine(focus.ruleId, focus.outputEnd);
+                //drawLine(focus.ruleId, focus.outputStart, "down");
+                //drawLine(focus.ruleId, focus.outputEnd, "up");
+              }
+            };
+            if (accumulateLines) {
+              for (var i=0; sliderPosition >= i; i++) {
+                showFoci(i);
+              }
+            }
+            else
+              if (sliderPosition != -1)
+                showFoci(sliderPosition);
+          };
 
           function drawLine(fromId, toId, hookDirection){
             <!--
@@ -178,53 +232,6 @@
 
             Belay.init({strokeWidth: 1, animate: false});
 
-            var drawConnectors = function() {
-              Belay.off();
-
-              $(".start,.end").css("visibility","hidden");
-
-              //console.log(sliderPosition);
-
-              var showFoci = function(index) {
-                var currentFoci = slider[index];
-                for (var i=0; currentFoci.length > i; i++) {
-                  //console.log("processing focus "+i);
-                  //console.log(focus);
-                  var focus = foci[currentFoci[i]];
-
-                  var invocationId = focus.invocationId;
-
-                  //initializeColors(invocationId);
-
-                  Belay.set('strokeColor', colors[invocationId]);
-
-                  <!-- Using a different color for each focus --><!--
-                  if (focus.color == undefined)
-                    focus.color = getRandomColor();
-                  Belay.set('strokeColor', focus.color);
-                  -->
-
-                  /*
-                  $("#"+focus.outputId).css("display","inline");
-                  $("#"+focus.outputId).css("background-color",colors[invocationId]);
-                  */
-
-                  drawLine(focus.contextId, focus.ruleId);
-                  drawLine(focus.ruleId, focus.outputStart);
-                  drawLine(focus.ruleId, focus.outputEnd);
-                  //drawLine(focus.ruleId, focus.outputStart, "down");
-                  //drawLine(focus.ruleId, focus.outputEnd, "up");
-                }
-              };
-              if (accumulateLines) {
-                for (var i=0; sliderPosition >= i; i++) {
-                  showFoci(i);
-                }
-              }
-              else
-                if (sliderPosition != -1)
-                  showFoci(sliderPosition);
-            };
 /*
 
                   currentOutput.css("display","none");
@@ -238,7 +245,7 @@
               drawConnectors();
             });
 
-            var accumulateLines = $("#accumulateLines").is(":checked");
+            accumulateLines = $("#accumulateLines").is(":checked");
             $("#accumulateLines").change(function() {
               accumulateLines = $(this).is(":checked");
               drawConnectors();
@@ -260,8 +267,54 @@
 
           });
         </script>
+        <!-- tooltip configuration -->
+        <script>
+					$(function() {
+
+						$( document ).tooltip({
+							items: ".rule, .stageRoot, .ruleMode",
+							show: false,
+							content: function() {
+								var element = $(this);
+								if (element.is(".rule")) {
+									var span = $(this);
+									var pre = $("#"+span.attr("data-id"));
+									var priority = pre.attr("data-priority");
+									var priorityNote = (typeof(priority) != "undefined") ?
+																		 "<div> " +
+																				"<tt>priority=\"" + priority + "\"</tt>" +
+																		 "</div>" :
+																		 "";
+									var content = pre.html();
+									var contentLength = content.length;
+									var preString = "&lt;pre>" + content + "&lt;/pre>";
+										/*
+										(contentLength > 2000)
+										? "&lt;pre style='font-size:8px'>" + content.substring(1,2000) + "&lt;/pre>"
+										: "&lt;pre>" + content + "&lt;/pre>";
+										*/
+
+									return "<div>Module: " + pre.attr("data-file") + "</div>" + priorityNote + preString;
+								}
+<!--
+								if (element.is(".stageRoot")) {
+									var position = $(this).attr("data-stage-position");
+									return $("#stage-"+position+"-tooltip").html();
+								}
+-->
+								if (element.is(".ruleMode")) {
+									return $("#"+$(this).attr("data-tooltip-id")).html();
+								}
+							},
+							position: { my: "left top+15", at: "left bottom", collision: "flipfit" },
+							show: 2500
+						});
+					});
+				</script>
+        <xsl:call-template name="jstree-head-stuff"/>
       </head>
       <body>
+        <xsl:apply-templates mode="jstree-xslt-snippets" select="$rule-tree"/>
         <div>
           <div id="sliderWidget"/>
           <div style="position: fixed; right: 20px; font-size: smaller">
@@ -283,12 +336,15 @@
               </xsl:for-each>
             </td>
             <td style="vertical-align: top">
+              <xsl:apply-templates mode="mode-tree" select="$rule-tree"/>
+              <!--
               <xsl:for-each select="distinct-values($foci-array-objects//ruleId)">
-                <xsl:sort select="."/> <!-- arbitrary stable order for now -->
+                <xsl:sort select="."/> <!- - arbitrary stable order for now - ->
                 <div id="{.}">
                   <xsl:value-of select="."/>
                 </div>
               </xsl:for-each>
+              -->
             </td>
             <td style="vertical-align: top">
               <pre>
@@ -310,6 +366,7 @@
       </body>
     </html>
   </xsl:template>
+
 
   <xsl:template mode="array-list-syntax" match="array">
     [

@@ -7,6 +7,7 @@
   exclude-result-prefixes="xs xdmp out">
 
   <xsl:import href="lib/xml-to-string.xsl"/>
+  <xsl:param name="force-exclude-all-namespaces" select="true()"/>
 
   <xsl:include href="guid.xsl"/>
   <xsl:include href="generate-built-in-rules.xsl"/>
@@ -38,6 +39,8 @@
   <xsl:variable name="trace-enabled">      <xsl:apply-templates mode="trace-enable" select="$with-rule-ids"/></xsl:variable>
   <xsl:variable name="flattened">          <xsl:apply-templates mode="flatten"      select="$trace-enabled"/></xsl:variable>
 
+<xsl:output indent="no"/>
+
   <xsl:template match="/">
     <!--
     <xsl:sequence select="$gathered-code"/>
@@ -57,7 +60,7 @@
           <mode name="{$mode}">
             <xsl:for-each select="$all-rules[@mode eq $mode]">
               <xsl:variable name="rule-id" select="string(@trace:rule-id)"/>
-              <rule id="{@trace:rule-id}">
+              <rule id="{@trace:rule-id}" match="{@match}" priority="{@priority}" file="{ancestor::trace:result-document[1][not(@built-in-rules)]/@href}">
                 <!-- show the original code, not the trace-enabled code -->
                 <xsl:apply-templates mode="xml-to-string" select="$with-rule-ids//xsl:template[@trace:rule-id eq $rule-id]/node()"/>
               </rule>
@@ -67,6 +70,10 @@
       </rule-tree>
     </result-docs>
   </xsl:template>
+
+          <xsl:template mode="xml-to-string" match="@disable-output-escaping[. eq 'no']"/>
+          <xsl:template mode="xml-to-string" match="@mode[. eq '#default']"/>
+          <xsl:template mode="xml-to-string" match="xsl:apply-templates/@select[. eq 'child::node()']"/>
 
   <xsl:template mode="gather-code" match="/">
     <trace:result-document href="{substring-after(base-uri(.),$full-source-dir)}">

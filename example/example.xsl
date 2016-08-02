@@ -24,7 +24,7 @@
 
   <xsl:template match="para">
     <p>
-      <xsl:apply-templates/>
+      <xsl:apply-templates mode="inline"/>
     </p>
   </xsl:template>
 
