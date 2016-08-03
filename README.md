@@ -1,6 +1,8 @@
 # xslt-visualizer
 Home for a grand experiment in software visualization for XSLT.
 
+(View a demo of the XSLT visualizer)[http://xmlportfolio.com/xslt-visualizer-demo/]
+
 The initial version is very much slapped together with hard-coded file names, etc.
 
 You should be able to run this demo if you:
