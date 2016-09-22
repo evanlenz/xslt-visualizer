@@ -46,6 +46,7 @@
           #sliderWidget { position: fixed; width: 80% }
           pre { margin:0}
           .unmanifested { font-style: italic }
+          svg { pointer-events: none; }
         </style>
         <script>
           var slider;
