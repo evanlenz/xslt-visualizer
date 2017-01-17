@@ -39,7 +39,11 @@
     <xsl:copy-of select="xsl:param"/>
 
     <out:param name="trace:rule-mode" select="'#default'"/>
+    <!--
     <out:param name="trace:invocation-id" select="'initial'"/>
+    -->
+    <!-- "initial" is now explicitly supplied (there should only be one) -->
+    <out:param name="trace:invocation-id"/>
     <out:param name="trace:invocation-expression" select="'/'"/>
     <out:param name="trace:invocation-type" select="'apply-templates'"/>
     <!-- one for each apply-templates element within this rule, monotonically increasing -->

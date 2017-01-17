@@ -17,9 +17,6 @@
   <xsl:namespace-alias stylesheet-prefix="out" result-prefix="xsl"/>
 
   <xsl:param name="source-dir" select="''"/>
-  <!--
-  <xsl:param name="source-dir" select="'enrichment-tracing2/visualizer/'"/>
-  -->
 
   <xsl:param name="output-dir" select="'trace-enabled'"/>
 
@@ -46,7 +43,9 @@
   <xsl:template match="/">
     <!--
     <xsl:sequence select="$gathered-code"/>
+    <xsl:comment>BEGIN $with-built-in-rules</xsl:comment>
     <xsl:sequence select="$with-built-in-rules"/>
+    <xsl:comment>END $with-built-in-rules</xsl:comment>
     <xsl:sequence select="$with-rule-ids"/>
     <xsl:sequence select="$trace-enabled"/>
     -->
@@ -104,7 +103,12 @@
         <out:sequence select="xdmp:document-insert(concat('{$sources-db-dir}',trace:guid()),
                                                    $source-with-ids
                                                   )"/>
+        <!--
         <out:next-match/>
+        -->
+        <out:next-match>
+          <out:with-param name="trace:invocation-id" select="'initial'"/>
+        </out:next-match>
       </out:template>
 
       <xsl:copy-of select="xdmp:document-get(concat(xdmp:modules-root(),'to-string.xsl'))/*/*"/>
@@ -148,8 +152,18 @@
 
 
   <xsl:template mode="gather-code" match="xsl:import | xsl:include">
+    <!--
     <xsl:next-match/>
+    -->
+    <xsl:variable name="module-uri" select="resolve-uri(@href,base-uri(.))"/>
+    <xsl:copy>
+      <xsl:copy-of select="@*"/>
+      <xsl:attribute name="trace:module-uri" select="$module-uri"/>
+    </xsl:copy>
+    <xsl:apply-templates mode="#current" select="xdmp:document-get($module-uri,$document-get-options)"/>
+    <!--
     <xsl:apply-templates mode="#current" select="xdmp:document-get(concat($full-source-dir,@href),$document-get-options)"/>
+    -->
   </xsl:template>
 
   <!-- Make the default mode explicit -->

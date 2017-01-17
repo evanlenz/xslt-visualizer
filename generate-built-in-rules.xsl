@@ -19,6 +19,7 @@
   <xsl:template mode="built-in-rules" match="trace:result-document">
     <xsl:next-match>
       <xsl:with-param name="insert-import" select="not(preceding-sibling::trace:result-document)" tunnel="yes"/>
+      <xsl:with-param name="parent-module-uri" select="preceding-sibling::*[1]/@trace:module-uri" tunnel="yes"/>
     </xsl:next-match>
   </xsl:template>
 
@@ -33,8 +34,15 @@
   <xsl:template mode="built-in-rules-insert" match="xsl:stylesheet[not(xsl:import)]
                                                   | xsl:transform [not(xsl:import)]">
     <xsl:param name="insert-import" select="false()" tunnel="yes"/>
+    <xsl:param name="parent-module-uri" tunnel="yes"/>
     <xsl:if test="$insert-import">
-      <out:import href="{$built-in-rules-xsl}"/>
+      <xsl:variable name="uri-prefix">
+        <xsl:variable name="path-from-source-dir"
+                      select="substring-after($parent-module-uri, $full-source-dir)"/>
+        <xsl:variable name="slash-separated" select="tokenize($path-from-source-dir,'/')"/>
+        <xsl:sequence select="string-join(for $slash in $slash-separated[position() ge 2] return '../','')"/>
+      </xsl:variable>
+      <out:import href="{$uri-prefix}{$built-in-rules-xsl}"/>
       <trace:result-document href="{$built-in-rules-xsl}" built-in-rules="yes">
         <out:stylesheet version="2.0">
           <xsl:namespace name="trace" select="'http://lenzconsulting.com/tracexslt'"/>
@@ -168,5 +176,8 @@
 
           <!-- by default, don't insert anything -->
           <xsl:template mode="built-in-rules-insert" match="*"/>
+
+  <!-- This attribute has served its role; strip it -->
+  <xsl:template mode="built-in-rules" match="@trace:module-uri"/>
 
 </xsl:stylesheet>
