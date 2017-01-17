@@ -29,7 +29,8 @@ let $trace-enabled :=
 
 let $code-dir := "/transforms/"||$stylesheet-uri||"/code/trace-enabled/"
 let $main-uri := $code-dir||$trace-enabled/result-docs/*[1]/@href/string(.)
-let $_ := $trace-enabled/result-docs/*:result-document ! xdmp:document-insert($code-dir||@href, document{*})
+let $_ := $trace-enabled/result-docs/*:result-document[not(@href = preceding-sibling::*:result-document/@href)]
+                                                 ! xdmp:document-insert($code-dir||@href, document{*})
 let $_ := $trace-enabled/result-docs/*:rule-tree ! xdmp:document-insert($code-dir||'rule-tree.xml', document{.})
 
 return
