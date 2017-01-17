@@ -486,7 +486,7 @@
   <xsl:template mode="focus-object" match="trace:invocation">
     <xsl:param name="depth" tunnel="yes" select="0"/>
     <xsl:apply-templates mode="#current" select="collection()/trace:focus[@invocation-id eq current()/@invocation-id]">
-      <xsl:sort select="@context-position"/>
+      <xsl:sort select="@context-position" data-type="number"/>
       <xsl:with-param name="depth" select="$depth + 1" tunnel="yes"/>
     </xsl:apply-templates>
   </xsl:template>
@@ -574,7 +574,7 @@
 
   <xsl:template mode="to-string" match="trace:invocation">
     <xsl:apply-templates select="collection()/trace:focus[@invocation-id eq current()/@invocation-id]">
-      <xsl:sort select="@context-position"/>
+      <xsl:sort select="@context-position" data-type="number"/>
     </xsl:apply-templates>
   </xsl:template>
 
