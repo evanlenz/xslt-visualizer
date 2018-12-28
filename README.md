@@ -1,7 +1,7 @@
 # xslt-visualizer
-Home for a grand experiment in software visualization for XSLT.
+Home for a grand experiment in software visualization for XSLT
 
-[View a demo of the XSLT visualizer](http://xmlportfolio.com/xslt-visualizer-demo/)
+[View a demo of the XSLT visualizer](http://xmlportfolio.com/xslt-visualizer-demo/) (or [read the paper](https://www.balisage.net/Proceedings/vol17/html/Lenz01/BalisageVol17-Lenz01.html) and [view the slides](https://www.slideshare.net/evanlenz/the-mystical-principles-of-xslt-enlightenment-through-software-visualization))
 
 Here are the steps to visualizing a transformation:
 
