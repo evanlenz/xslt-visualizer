@@ -133,7 +133,7 @@
         </out:next-match>
       </out:template>
 
-      <xsl:copy-of select="document('to-string.xsl')/*/*"/>
+      <xsl:copy-of select="document('to-string.xsl')/*/*" copy-namespaces="no"/>
 
     </out:stylesheet>
   </xsl:template>
