@@ -3,24 +3,28 @@ Home for a grand experiment in software visualization for XSLT.
 
 [View a demo of the XSLT visualizer](http://xmlportfolio.com/xslt-visualizer-demo/)
 
-The initial version is very much slapped together with hard-coded file names, etc.
+Here are the steps to visualizing a transformation:
 
-You should be able to run this demo if you:
+0. Install [Saxon-HE](http://saxon.sourceforge.net/#F9.9HE) or better.
+1. Trace-enable your XSLT (using trace-enable.xsl).
+2. Apply the trace-enabled XSLT to a source document of your choice.
+3. Render the resulting transformation metadata to HTML/JavaScript (using render.xsl).
+4. View the HTML in your browser.
 
-1. Install MarkLogic if you don't already have it.
-2. Create a new database (and a forest), named "xslt-visualizer".
-3. Create an app server associated to that database and with the
-   app server root set to your local checkout of this git project
-   and port 8005 (or any other port).
-4. Clear the database (won't be necessary the first time) by clicking
-   [http://localhost:8005/clear-db.xqy](http://localhost:8005/clear-db.xqy)
-5. Trace-enable the example XSLT by clicking
-   [http://localhost:8005/trace.xqy](http://localhost:8005/trace.xqy)
-6. Run the trace-enabled XSLT against the sample input document:
-   [http://localhost:8005/run.xqy](http://localhost:8005/run.xqy)
-7. Finally, view the result: [http://localhost:8005/](http://localhost:8005/)
+Some very rudimentary shell scripts (respectively corresponding to steps 1, 2, and 3 above) are provided to show examples of how to do this.
 
-For development so far, I repeat steps 4 through 7 each time I make a code change.
+    ./prepare.sh example
+    ./trace.sh example
+    ./render.sh example
 
-Assuming further development, this hacked-together routine will get replaced
-with a more general framework.
+Or you can run this:
+
+    ./run-all.sh example
+
+to run all three steps with one command.
+
+To view the results (step 4), open build/rendered/example.html in your browser.
+
+You will likely need to change something in the shell scripts; they currently assume the Saxon-HE .jar file is installed at "C:/saxon/saxon9he.jar". Update them as necessary to conform to your environment.
+
+For now, it may be best to inspect these shell scripts directly to better understand the steps; each is only one or two lines long. 

@@ -2,20 +2,19 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:trace="http://lenzconsulting.com/tracexslt"
-  xmlns:xdmp="http://marklogic.com/xdmp"
   xmlns:my="http://localhost"
-  exclude-result-prefixes="xs trace my xdmp">
+  exclude-result-prefixes="xs trace my">
 
   <xsl:import href="html-rule-tree.xsl"/>
 
   <xsl:output method="html" indent="no"/>
 
   <xsl:param name="indent" select="true()"/>
-  <xsl:param name="code-dir"/>
 
-  <xsl:variable name="rule-tree" select="doc(concat($code-dir,'rule-tree.xml'))"/>
-
-  <xsl:variable name="source-tree" select="xdmp:directory('/sources/')[source-doc]"/>
+  <!-- ASSUMPTION: the primary input document is the initial focus in the "matches" directory -->
+  <xsl:variable name="rule-tree" select="document('../rule-tree.xml', /)"/>
+  <xsl:variable name="source-tree" select="collection(resolve-uri('../sources',base-uri(.)))"/>
+  <xsl:variable name="all-matches" select="collection(resolve-uri('../matches',base-uri(.)))"/>
 
   <xsl:template match="/">
     <xsl:variable name="foci-array-objects"><!-- as="element()*">-->
@@ -485,7 +484,7 @@
 
   <xsl:template mode="focus-object" match="trace:invocation">
     <xsl:param name="depth" tunnel="yes" select="0"/>
-    <xsl:apply-templates mode="#current" select="collection()/trace:focus[@invocation-id eq current()/@invocation-id]">
+    <xsl:apply-templates mode="#current" select="$all-matches ! trace:focus[@invocation-id eq current()/@invocation-id]">
       <xsl:sort select="@context-position" data-type="number"/>
       <xsl:with-param name="depth" select="$depth + 1" tunnel="yes"/>
     </xsl:apply-templates>
@@ -573,7 +572,7 @@
           </xsl:template>
 
   <xsl:template mode="to-string" match="trace:invocation">
-    <xsl:apply-templates select="collection()/trace:focus[@invocation-id eq current()/@invocation-id]">
+    <xsl:apply-templates select="$all-matches ! trace:focus[@invocation-id eq current()/@invocation-id]">
       <xsl:sort select="@context-position" data-type="number"/>
     </xsl:apply-templates>
   </xsl:template>

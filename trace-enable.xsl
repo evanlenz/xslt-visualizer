@@ -3,8 +3,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:out="dummy"
   xmlns:trace="http://lenzconsulting.com/tracexslt"
-  xmlns:xdmp="http://marklogic.com/xdmp"
-  exclude-result-prefixes="xs xdmp out">
+  exclude-result-prefixes="xs out">
 
   <xsl:import href="lib/xml-to-string.xsl"/>
 
@@ -16,21 +15,12 @@
 
   <xsl:namespace-alias stylesheet-prefix="out" result-prefix="xsl"/>
 
-  <xsl:param name="source-dir" select="''"/>
+  <xsl:param name="full-source-dir" select="resolve-uri('example/', static-base-uri())"/>
 
-  <xsl:param name="output-dir" select="'trace-enabled'"/>
+  <xsl:variable name="matches-dir" select="'matches/'"/>
+  <xsl:variable name="sources-dir" select="'sources/'"/>
 
-  <xsl:variable name="full-source-dir" select="concat(xdmp:modules-root(),$source-dir)"/>
-
-  <!-- TODO: make these specific to a stylesheet and input document (using parent dirs) -->
-  <xsl:variable name="matches-db-dir" select="'/matches/'"/>
-  <xsl:variable name="sources-db-dir" select="'/sources/'"/>
-
-  <xsl:variable name="document-get-options" as="element()">
-    <options xmlns="xdmp:document-get">
-      <format>xml</format>
-    </options>
-  </xsl:variable>
+  <xsl:variable name="current-output-uri" select="resolve-uri(current-output-uri())"/>
 
   <xsl:variable name="gathered-code">      <xsl:apply-templates mode="gather-code" select="."/></xsl:variable>
   <xsl:variable name="with-built-in-rules"><xsl:apply-templates mode="built-in-rules" select="$gathered-code"/></xsl:variable>
@@ -40,7 +30,37 @@
 
 <xsl:output indent="no"/>
 
+  <!-- Set some tunnel parameters (can't be global variables, because current-output-uri() is cleared when evaluating those) -->
+  <xsl:template match="/" priority="1">
+    <xsl:variable name="stylesheet-file-name" select="tokenize(current-output-uri(),'/')[last()]"/>
+    <!-- This will just be .modules if the base output URI was not set.
+         That should be okay, but it's best to set it (e.g. using Saxon's -o flag) -->
+    <xsl:variable name="output-dir" select="concat($stylesheet-file-name, '.modules/')"/>
+    <xsl:next-match>
+      <xsl:with-param name="output-dir" select="$output-dir" tunnel="yes"/>
+    </xsl:next-match>
+  </xsl:template>
+
   <xsl:template match="/">
+    <xsl:param name="output-dir" tunnel="yes"/>
+    <!-- Output top-level stylesheet -->
+    <xsl:call-template name="top-module"/>
+
+    <!-- Output trace-enabled versions of all the original XSLT modules -->
+    <xsl:for-each select="$all-results/result-docs/trace:result-document[not(@href = preceding-sibling::trace:result-document/@href)]">
+      <xsl:result-document href="{$output-dir}/{@href}">
+        <xsl:copy-of select="node()"/>
+      </xsl:result-document>
+    </xsl:for-each>
+
+    <!-- Output the rule tree -->
+    <xsl:result-document href="{$output-dir}/rule-tree.xml">
+      <xsl:sequence select="$all-results/result-docs/rule-tree"/>
+    </xsl:result-document>
+
+  </xsl:template>
+
+  <xsl:variable name="all-results">
     <!--
     <xsl:sequence select="$gathered-code"/>
     <xsl:comment>BEGIN $with-built-in-rules</xsl:comment>
@@ -52,9 +72,11 @@
     <result-docs>
       <xsl:sequence select="$flattened"/>
 
+      <!--
       <trace:result-document href="top_{trace:guid()}.xsl">
         <xsl:call-template name="top-module"/>
       </trace:result-document>
+      -->
 
       <xsl:variable name="all-rules" select="$trace-enabled//xsl:template"/>
       <xsl:variable name="unique-modes" select="distinct-values($all-rules/@mode)"/>
@@ -74,7 +96,7 @@
         </xsl:for-each>
       </rule-tree>
     </result-docs>
-  </xsl:template>
+  </xsl:variable>
 
           <xsl:template mode="xml-to-string" match="@disable-output-escaping[. eq 'no']"/>
           <xsl:template mode="xml-to-string" match="@mode[. eq '#default']"/>
@@ -83,14 +105,13 @@
                                                   | xsl:copy/@copy-namespaces[. eq 'yes']"/>
 
   <xsl:template name="top-module">
+    <xsl:param name="output-dir" tunnel="yes"/>
     <out:stylesheet
       version="2.0"
       trace:is-top="yes"
-      xmlns:xdmp="http://marklogic.com/xdmp"
-      exclude-result-prefixes="trace"
-      xdmp:ns-hack="">
+      exclude-result-prefixes="trace">
 
-      <out:import href="{$flattened/trace:result-document[1]/@href}"/>
+      <out:import href="{$output-dir}{$flattened/trace:result-document[1]/@href}"/>
 
       <out:param name="trace:indent" select="true()"/>
 
@@ -100,18 +121,19 @@
             <out:apply-templates mode="to-string" select="."/>
           </source-doc>
         </out:variable>
-        <out:sequence select="xdmp:document-insert(concat('{$sources-db-dir}',trace:guid()),
-                                                   $source-with-ids
-                                                  )"/>
-        <!--
-        <out:next-match/>
-        -->
+        <out:result-document href="{$sources-dir}{{trace:guid()}}.xml" method="xml">
+          <out:sequence select="$source-with-ids"/>
+        </out:result-document>
+        <!-- Copy rule-tree.xml as is for downstream use in rendering -->
+        <out:result-document href="rule-tree.xml" method="xml">
+          <out:copy-of select="document('{$output-dir}rule-tree.xml')"/>
+        </out:result-document>
         <out:next-match>
           <out:with-param name="trace:invocation-id" select="'initial'"/>
         </out:next-match>
       </out:template>
 
-      <xsl:copy-of select="xdmp:document-get(concat(xdmp:modules-root(),'to-string.xsl'))/*/*"/>
+      <xsl:copy-of select="document('to-string.xsl')/*/*"/>
 
     </out:stylesheet>
   </xsl:template>
@@ -160,14 +182,11 @@
       <xsl:copy-of select="@*"/>
       <xsl:attribute name="trace:module-uri" select="$module-uri"/>
     </xsl:copy>
-    <xsl:apply-templates mode="#current" select="xdmp:document-get($module-uri,$document-get-options)"/>
-    <!--
-    <xsl:apply-templates mode="#current" select="xdmp:document-get(concat($full-source-dir,@href),$document-get-options)"/>
-    -->
+    <xsl:apply-templates mode="#current" select="document($module-uri)"/>
   </xsl:template>
 
   <!-- Make the default mode explicit -->
-  <xsl:template mode="gather-code-insert" match="xsl:template[not(@mode)] | xsl:apply-templates[not(@mode)]">
+  <xsl:template mode="gather-code-insert" match="xsl:template[@match][not(@mode)] | xsl:apply-templates[not(@mode)]">
     <xsl:attribute name="mode" select="'#default'"/>
   </xsl:template>
 

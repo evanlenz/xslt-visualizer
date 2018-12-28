@@ -6,9 +6,8 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:out="dummy"
   xmlns:trace="http://lenzconsulting.com/tracexslt"
-  xmlns:xdmp="http://marklogic.com/xdmp"
   xmlns:my="http://localhost"
-  exclude-result-prefixes="xs xdmp out my">
+  exclude-result-prefixes="xs out my">
 
   <xsl:template mode="trace-enable" match="@* | node()">
     <xsl:copy>
@@ -34,7 +33,6 @@
   <xsl:template mode="trace-enable-content" match="xsl:template">
     <!-- Make the namespaces available -->
     <xsl:namespace name="trace" select="'http://lenzconsulting.com/tracexslt'"/>
-    <xsl:namespace name="xdmp" select="'http://marklogic.com/xdmp'"/>
 
     <xsl:copy-of select="xsl:param"/>
 
@@ -46,6 +44,7 @@
     <out:param name="trace:invocation-id"/>
     <out:param name="trace:invocation-expression" select="'/'"/>
     <out:param name="trace:invocation-type" select="'apply-templates'"/>
+    <out:param name="trace:inside-temporary-tree" tunnel="yes"/>
     <!-- one for each apply-templates element within this rule, monotonically increasing -->
     <!-- TODO: add support for xsl:for-each; then restrict this to non-nested invocation descendants; then the child-invocation-id-[position] variable will be sufficient (non-ambiguous), I think -->
     <xsl:for-each select=".//(&INVOKER;)">
@@ -64,16 +63,27 @@
         <xsl:apply-templates mode="match-content" select="node() except xsl:param"/>
       </trace:focus>
     </out:variable>
-    <out:sequence select="xdmp:document-insert(concat('{$matches-db-dir}',trace:guid()),
-                                               $trace:focus)"/>
+    <out:variable name="output-basename"
+                  select="if ($trace:invocation-id eq 'initial') then 'initial'
+                                                                 else trace:guid()"/>
+    <out:if test="not($trace:inside-temporary-tree)">
+      <out:result-document href="{$matches-dir}{{$output-basename}}.xml" method="xml">
+        <out:copy-of select="$trace:focus"/>
+      </out:result-document>
+    </out:if>
     <xsl:apply-templates mode="trace-enable" select="node() except xsl:param"/>
   </xsl:template>
 
           <xsl:template mode="match-content" match="@* | node()">
             <xsl:copy>
               <xsl:apply-templates mode="#current" select="@* | node()"/>
+              <xsl:apply-templates mode="match-content-append" select="."/>
             </xsl:copy>
           </xsl:template>
+
+                  <!-- by default, don't append any content -->
+                  <xsl:template mode="match-content-append" match="*"/>
+
 
           <xsl:template mode="match-content" match="&INVOKER;">
             <trace:invocation invocation-id="{{{my:expression-for-invocation-id(.)}}}">
@@ -86,7 +96,18 @@
           </xsl:template>
 
 
-  <xsl:template mode="trace-enable-append" match="&INVOKER;">
+  <!-- Working around the limitation of using <xsl:result-document> for our side effects -->
+  <xsl:template mode="match-content-append" match="&INVOKER; | xsl:call-template">
+    <out:with-param name="trace:inside-temporary-tree" select="true()" tunnel="yes"/>
+  </xsl:template>
+  <xsl:template mode="trace-enable-append" match="&INVOKER; | xsl:call-template">
+    <!-- NOTE: this is not a comprehensive safeguard. E.g., it doesn't handle apply-templates inside a function body -->
+    <xsl:if test="ancestor::xsl:variable | ancestor::xsl:param | ancestor::xsl:with-param">
+      <out:with-param name="trace:inside-temporary-tree" select="true()" tunnel="yes"/>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template mode="trace-enable-append" match="&INVOKER;" priority="1">
     <xsl:variable name="rule-mode" as="xs:string">
       <xsl:apply-templates mode="rule-mode" select="."/>
     </xsl:variable>
@@ -97,6 +118,7 @@
     <out:with-param name="trace:invocation-id" select="{my:expression-for-invocation-id(.)}"/>
     <out:with-param name="trace:invocation-expression" select="{$invocation-expression}"/>
     <out:with-param name="trace:invocation-type" select="'{local-name(.)}'"/>
+    <xsl:next-match/>
   </xsl:template>
 
           <xsl:template mode="invocation-expression" match="*">
