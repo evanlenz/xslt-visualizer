@@ -5,12 +5,13 @@ Home for a grand experiment in software visualization for XSLT.
 
 Here are the steps to visualizing a transformation:
 
+0. Install Saxon-HE or better.
 1. Trace-enable your XSLT (using trace-enable.xsl).
 2. Apply the trace-enabled XSLT to a source document of your choice.
 3. Render the resulting transformation metadata to HTML/JavaScript (using render.xsl).
 4. View the HTML in your browser.
 
-Some rudimentary shell scripts (respectively corresponding to steps 1, 2, and 3 above) are provided to show examples of how to do this.
+Some very rudimentary shell scripts (respectively corresponding to steps 1, 2, and 3 above) are provided to show examples of how to do this.
 
     ./prepare.sh example
     ./trace.sh example
@@ -20,6 +21,10 @@ Or you can run this:
 
     ./run-all.sh example
 
-which will do all of the above in one script.
+to run all three steps with one command.
 
-For now, it may be best to inspect these files directly to understand what they do, since they are only one or two lines each. You will likely need to change something; the scripts currently assume the Saxon-HE .jar file is installed at "C:/saxon/saxon9he.jar". Update them as necessary to conform to your environment.
+To view the results (step 4), open build/rendered/example.html in your browser.
+
+You will likely need to change something in the shell scripts; they currently assume the Saxon-HE .jar file is installed at "C:/saxon/saxon9he.jar". Update them as necessary to conform to your environment.
+
+For now, it may be best to inspect these shell scripts directly to better understand the steps; each is only one or two lines long. 
