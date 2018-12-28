@@ -15,7 +15,7 @@
 
   <xsl:namespace-alias stylesheet-prefix="out" result-prefix="xsl"/>
 
-  <xsl:param name="full-source-dir" select="resolve-uri('example/', static-base-uri())"/>
+  <xsl:variable name="full-source-dir" select="resolve-uri('.', base-uri(.))"/>
 
   <xsl:variable name="matches-dir" select="'matches/'"/>
   <xsl:variable name="sources-dir" select="'sources/'"/>
