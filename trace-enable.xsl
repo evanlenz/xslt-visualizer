@@ -186,7 +186,7 @@
   </xsl:template>
 
   <!-- Make the default mode explicit -->
-  <xsl:template mode="gather-code-insert" match="xsl:template[not(@mode)] | xsl:apply-templates[not(@mode)]">
+  <xsl:template mode="gather-code-insert" match="xsl:template[@match][not(@mode)] | xsl:apply-templates[not(@mode)]">
     <xsl:attribute name="mode" select="'#default'"/>
   </xsl:template>
 

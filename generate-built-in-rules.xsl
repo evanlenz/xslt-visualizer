@@ -53,8 +53,8 @@
             <!-- The built-in rules automatically forward non-tunnel parameters, so we've got to cover them all. -->
             <xsl:variable name="parameter-names" as="xs:QName*">
               <xsl:variable name="all-param-names"
-                            select="$gathered-code//( xsl:apply-templates[trace:has-mode(.,$this-mode)]
-                                                    | xsl:template       [trace:has-mode(.,$this-mode)]
+                            select="$gathered-code//( xsl:apply-templates [trace:has-mode(.,$this-mode)]
+                                                    | xsl:template[@match][trace:has-mode(.,$this-mode)]
                                                       //( xsl:apply-templates[@mode eq '#current']
                                                         | xsl:apply-imports
                                                         | xsl:next-match
