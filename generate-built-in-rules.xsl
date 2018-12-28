@@ -2,7 +2,6 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:trace="http://lenzconsulting.com/tracexslt"
-  xmlns:xdmp="http://marklogic.com/xdmp"
   xmlns:out="dummy"
   exclude-result-prefixes="xs out">
 
@@ -94,21 +93,7 @@
           </xsl:for-each>
 
           <!-- Might as well insert the needed library code here too -->
-          <!-- This is duplicated from guid.xsl; sue me -->
-          <out:function name="trace:random-hex" as="xs:string+" trace:ns-hack="" xdmp:ns-hack="" xs:ns-hack="">
-            <out:param name="seq" as="xs:integer*"/>
-            <out:sequence select="
-              for $i in $seq return 
-                string-join(for $n in 1 to $i
-                  return xdmp:integer-to-hex(xdmp:random(15)), '')
-            "/>
-          </out:function>
-
-          <out:function name="trace:guid" as="xs:string" trace:ns-hack="" xdmp:ns-hack="" xs:ns-hack="">
-            <out:sequence select="
-              string-join(trace:random-hex((8,4,4,4,12)),'-')
-            "/>
-          </out:function>
+          <xsl:copy-of select="document('guid.xsl')/*/xsl:function[@name eq 'trace:guid']"/>
 
         </out:stylesheet>
       </trace:result-document>

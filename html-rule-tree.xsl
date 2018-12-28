@@ -1,9 +1,8 @@
 <xsl:stylesheet version="2.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:xdmp="http://marklogic.com/xdmp"
   xmlns:trace="http://lenzconsulting.com/tracexslt"
-  exclude-result-prefixes="xs trace xdmp">
+  exclude-result-prefixes="xs trace">
 
   <xsl:template name="jstree-head-stuff">
     <link rel="stylesheet" href="assets/jstree/dist/themes/default/style.css" />
@@ -166,7 +165,7 @@
     <xsl:variable name="matches" select="$t:trace-doc/*/trace:matches/match[@rule-id eq $rule-id]
                                                                            [@stage   eq $stage]"/>
                                                                            -->
-    <xsl:variable name="matches" select="xdmp:estimate(xdmp:directory('/matches/')/trace:focus[@rule-id eq $rule-id])"/>
+    <xsl:variable name="matches" select="exists($all-matches/trace:focus[@rule-id eq $rule-id])"/>
     <!--
     <xsl:variable name="jstree-config">
       <xsl:text>{ "icon":"glyphicon glyphicon-</xsl:text>
