@@ -5,7 +5,7 @@ Home for a grand experiment in software visualization for XSLT.
 
 Here are the steps to visualizing a transformation:
 
-0. Install Saxon-HE or better.
+0. Install [Saxon-HE](http://saxon.sourceforge.net/#F9.9HE) or better.
 1. Trace-enable your XSLT (using trace-enable.xsl).
 2. Apply the trace-enabled XSLT to a source document of your choice.
 3. Render the resulting transformation metadata to HTML/JavaScript (using render.xsl).
