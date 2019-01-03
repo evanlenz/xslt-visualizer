@@ -558,7 +558,7 @@
             <xsl:if test="not(@rule-mode eq '#default')">
               <xsl:text> mode="</xsl:text>
               <xsl:value-of select="@rule-mode"/>
-              
+              <xsl:text>"</xsl:text>
             </xsl:if>
           </xsl:template>
 
