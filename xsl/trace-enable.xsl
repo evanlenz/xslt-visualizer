@@ -1,4 +1,4 @@
-<xsl:stylesheet version="2.0"
+<xsl:stylesheet version="3.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:out="dummy"
@@ -17,11 +17,6 @@
 
   <xsl:variable name="full-source-dir" select="resolve-uri('.', base-uri(.))"/>
 
-  <xsl:variable name="matches-dir" select="'matches/'"/>
-  <xsl:variable name="sources-dir" select="'sources/'"/>
-
-  <xsl:variable name="current-output-uri" select="resolve-uri(current-output-uri())"/>
-
   <xsl:variable name="gathered-code">      <xsl:apply-templates mode="gather-code" select="."/></xsl:variable>
   <xsl:variable name="with-built-in-rules"><xsl:apply-templates mode="built-in-rules" select="$gathered-code"/></xsl:variable>
   <xsl:variable name="with-rule-ids">      <xsl:apply-templates mode="add-rule-ids" select="$with-built-in-rules"/></xsl:variable>
@@ -32,10 +27,10 @@
 
   <!-- Set some tunnel parameters (can't be global variables, because current-output-uri() is cleared when evaluating those) -->
   <xsl:template match="/" priority="1">
-    <xsl:variable name="stylesheet-file-name" select="tokenize(current-output-uri(),'/')[last()]"/>
+    <xsl:variable name="output-stylesheet-file-name" select="tokenize(current-output-uri(),'/')[last()]"/>
     <!-- This will just be .modules if the base output URI was not set.
          That should be okay, but it's best to set it (e.g. using Saxon's -o flag) -->
-    <xsl:variable name="output-dir" select="concat($stylesheet-file-name, '.modules/')"/>
+    <xsl:variable name="output-dir"  select="concat($output-stylesheet-file-name, '.modules/')"/>
     <xsl:next-match>
       <xsl:with-param name="output-dir" select="$output-dir" tunnel="yes"/>
     </xsl:next-match>
@@ -43,6 +38,7 @@
 
   <xsl:template match="/">
     <xsl:param name="output-dir" tunnel="yes"/>
+
     <!-- Output top-level stylesheet -->
     <xsl:call-template name="top-module"/>
 
@@ -106,6 +102,7 @@
 
   <xsl:template name="top-module">
     <xsl:param name="output-dir" tunnel="yes"/>
+
     <out:stylesheet
       version="2.0"
       trace:is-top="yes"
@@ -115,17 +112,22 @@
 
       <out:param name="trace:indent" select="true()"/>
 
+      <out:variable name="input-file-name" select="tokenize(base-uri(.),'/')[last()]"/>
+      <out:variable name="traced-dir"  select="'traced/'"/>
+      <out:variable name="matches-dir" select="concat($traced-dir, $input-file-name, '.matches/')"/>
+      <out:variable name="sources-dir" select="concat($traced-dir, $input-file-name, '.sources/')"/>
+
       <out:template match="/">
         <out:variable name="source-with-ids">
           <source-doc id="{{generate-id(.)}}">
             <out:apply-templates mode="to-string" select="."/>
           </source-doc>
         </out:variable>
-        <out:result-document href="{$sources-dir}{{trace:guid()}}.xml" method="xml">
+        <out:result-document href="{{$sources-dir}}{{trace:guid()}}.xml" method="xml">
           <out:sequence select="$source-with-ids"/>
         </out:result-document>
         <!-- Copy rule-tree.xml as is for downstream use in rendering -->
-        <out:result-document href="rule-tree.xml" method="xml">
+        <out:result-document href="rule-tree/rule-tree.xml" method="xml">
           <out:copy-of select="document('{$output-dir}rule-tree.xml')"/>
         </out:result-document>
         <out:next-match>

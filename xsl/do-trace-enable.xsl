@@ -31,6 +31,7 @@
 
 
   <xsl:template mode="trace-enable-content" match="xsl:template">
+
     <!-- Make the namespaces available -->
     <xsl:namespace name="trace" select="'http://lenzconsulting.com/tracexslt'"/>
 
@@ -63,11 +64,16 @@
         <xsl:apply-templates mode="match-content" select="node() except xsl:param"/>
       </trace:focus>
     </out:variable>
-    <out:variable name="output-basename"
+    <out:variable name="match-id"
                   select="if ($trace:invocation-id eq 'initial') then 'initial'
                                                                  else trace:guid()"/>
+    <!-- Store the initial match at the top, subsequent matches in the subdirectory -->
+    <out:variable name="focus-href"
+                  select="if ($match-id eq 'initial')
+                          then concat($traced-dir, $input-file-name)
+                          else concat($matches-dir, $match-id, '.xml')"/>
     <out:if test="not($trace:inside-temporary-tree)">
-      <out:result-document href="{$matches-dir}{{$output-basename}}.xml" method="xml">
+      <out:result-document href="{{$focus-href}}" method="xml">
         <out:copy-of select="$trace:focus"/>
       </out:result-document>
     </out:if>

@@ -23,8 +23,8 @@ Or you can run this:
 
 to run all three steps with one command.
 
-To view the results (step 4), open build/rendered/example.html in your browser.
+To view the results (step 4), open build/example/visualized/example.html in your browser.
 
 You will likely need to change something in the shell scripts; they currently assume the Saxon-HE .jar file is installed at "C:/saxon/saxon9he.jar". Update them as necessary to conform to your environment.
 
-For now, it may be best to inspect these shell scripts directly to better understand the steps; each is only one or two lines long. 
+For now, it may be best to inspect these shell scripts directly to better understand the steps; each is only a few lines long. 

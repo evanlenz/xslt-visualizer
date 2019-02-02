@@ -1,0 +1,5 @@
+<article>
+  <heading>This is a short article</heading>
+  <para>This is the <emphasis>first</emphasis> paragraph.</para>
+  <para>This is the <strong>second</strong> paragraph.</para>
+</article>
