@@ -14,10 +14,10 @@
   <xsl:variable name="input-file-name" select="tokenize(base-uri(.),'/')[last()]"/>
 
   <!-- ASSUMPTION: the primary input document is the initial focus and is a sibling of the matches directory -->
-  <xsl:variable name="rule-tree" select="document('../rule-tree/rule-tree.xml', /)"/>
-  <xsl:variable name="source-tree" select="collection(resolve-uri(concat($input-file-name,'.sources'), base-uri(.)))"/>
-  <xsl:variable name="all-matches" select="collection(resolve-uri(concat($input-file-name,'.matches'), base-uri(.)))
-                                         | ."/>
+  <xsl:variable name="rule-tree"   select="document  (resolve-uri(concat($input-file-name,'.rule-tree/rule-tree.xml'), base-uri(.)))"/>
+  <xsl:variable name="source-tree" select="collection(resolve-uri(concat($input-file-name,'.sources'),                 base-uri(.)))"/>
+  <xsl:variable name="all-matches" select="collection(resolve-uri(concat($input-file-name,'.matches'),                 base-uri(.)))
+                                         | ."/>  <!-- primary input document is the initial match -->
 
   <xsl:template match="/">
     <xsl:variable name="foci-array-objects"><!-- as="element()*">-->
