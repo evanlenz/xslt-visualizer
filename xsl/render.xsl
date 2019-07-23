@@ -218,14 +218,17 @@
               }
             };
 
-            var scrollTo = function(target, container) {
+            var scrollTo = function(target, container, doAnimate) {
               var scrollAdjustment = $(window).height() / 2;
               var targetTop = target.offset().top - container.offset().top + container.scrollTop() - scrollAdjustment;
 
-              container.scrollTop(targetTop);
+              if (doAnimate)
+                container.animate({scrollTop: targetTop}, 500);
+              else
+                container.scrollTop(targetTop);
             };
 
-            var scrollTrees = function() {
+            var scrollTrees = function(doAnimate) {
               var focus = foci[slider[sliderPosition][0]];
 
               var sourceNode  = $("#"+focus.contextId);
@@ -236,27 +239,54 @@
               var rules      = $("#rules");
               var resultTree = $("#resultTree");
 
-              if (sourceNode.is(":visible"))  scrollTo(sourceNode, sourceTree);
-              if (rule.is(":visible"))        scrollTo(rule, rules);
-              if (resultChunk.is(":visible")) scrollTo(resultChunk, resultTree);
+              if (sourceNode.is(":visible"))  scrollTo(sourceNode, sourceTree, doAnimate);
+              if (rule.is(":visible"))        scrollTo(rule, rules, doAnimate);
+              if (resultChunk.is(":visible")) scrollTo(resultChunk, resultTree, doAnimate);
             };
 
             $("#sourceTree").scroll(function(){ drawConnectors(); });
             $("#rules").scroll(function(){ drawConnectors(); });
             $("#resultTree").scroll(function(){ drawConnectors(); });
 
+            var sliderHandler = function(newPosition, doAnimate) {
+                sliderPosition = newPosition;
+                showAndHide();
+                drawConnectors();
+                if (sliderPosition != -1)
+                  scrollTrees(doAnimate);
+            };
+
             $("#sliderWidget").slider({
               min: -1,
               max: <xsl:value-of select="count($slider-array-arrays) - 1"/>,
               value: -1,
-              slide: function(event, ui){
-                sliderPosition = ui.value;
-                showAndHide();
-                drawConnectors();
-                if (sliderPosition != -1)
-                  scrollTrees();
-              }
+              slide: function(event, ui) { sliderHandler(ui.value, false) }
             });
+
+            $("span[data-rule-id]").click(function(e) {
+              var span = $(e.target).closest("span[data-rule-id]");
+              var outputId = span.attr("id");
+              var newPosition = findSliderPosition(outputId);
+              $("#sliderWidget").slider("value", newPosition);
+              sliderHandler(newPosition, true);
+              e.stopPropagation();
+            });
+
+            var findSliderPosition = function(outputId) {
+              var i;
+              for (i = 0, len = foci.length; len > i; i++) {
+                if (foci[i].outputId == outputId)
+                  break;
+              }
+              var focusPosition = i;
+              var j;
+              for (j = 0, len = slider.length; len > j; j++) {
+                if (slider[j][0] == focusPosition)
+                  break;
+              }
+              var sliderPosition = j;
+              return sliderPosition;
+            };
 
             var showResults = function(focus) {
               $("#"+focus.outputId + " > .manifested"  ).show();
