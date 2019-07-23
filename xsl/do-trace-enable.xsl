@@ -1,5 +1,5 @@
 <!DOCTYPE xsl:stylesheet [
-<!ENTITY INVOKER "xsl:apply-templates | xsl:next-match | xsl:apply-imports">
+<!ENTITY INVOKER "xsl:apply-templates[not(ancestor::xsl:function)] | xsl:next-match | xsl:apply-imports">
 ]>
 <xsl:stylesheet version="2.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -106,9 +106,9 @@
   <xsl:template mode="match-content-append" match="&INVOKER; | xsl:call-template">
     <out:with-param name="trace:inside-temporary-tree" select="true()" tunnel="yes"/>
   </xsl:template>
-  <xsl:template mode="trace-enable-append" match="&INVOKER; | xsl:call-template">
-    <!-- NOTE: this is not a comprehensive safeguard. E.g., it doesn't handle apply-templates inside a function body -->
-    <xsl:if test="ancestor::xsl:variable | ancestor::xsl:param | ancestor::xsl:with-param">
+  <xsl:template mode="trace-enable-append" match="&INVOKER; | xsl:call-template | xsl:apply-templates">
+    <!-- NOTE: this may not be a comprehensive safeguard... -->
+    <xsl:if test="ancestor::xsl:variable | ancestor::xsl:param | ancestor::xsl:with-param | ancestor::xsl:function">
       <out:with-param name="trace:inside-temporary-tree" select="true()" tunnel="yes"/>
     </xsl:if>
   </xsl:template>
