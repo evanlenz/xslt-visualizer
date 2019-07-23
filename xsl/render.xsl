@@ -355,7 +355,7 @@
         <xsl:apply-templates mode="jstree-xslt-snippets" select="$rule-tree"/>
         <div>
           <div id="sliderWidget"/>
-          <div style="position: fixed; right: 20px; font-size: smaller">
+          <div style="position: fixed; right: 30px; font-size: smaller">
             <input id="accumulateLines" type="checkbox"/>
             Cumulative?
             <br/>
