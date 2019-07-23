@@ -3,7 +3,8 @@
 <xsl:stylesheet version="2.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  exclude-result-prefixes="xs">
+  xmlns:my="http://localhost"
+  exclude-result-prefixes="xs my">
 
   <xsl:template mode="to-string" match="*">
 <xsl:param name="already-indented"/>
@@ -38,16 +39,40 @@
     <xsl:text>></xsl:text>
   </xsl:template>
 
-  <xsl:template mode="to-string" match="text()">
+  <xsl:template mode="to-string" match="text()" xs:ns-hack="" my:ns-hack="">
     <xsl:param name="depth"/>
     <xsl:text>&#xA;</xsl:text>
-    <xsl:apply-templates mode="indent" select=".">
-      <xsl:with-param name="depth" select="$depth"/>
-    </xsl:apply-templates>
+    <xsl:variable name="indent" as="xs:string">
+      <xsl:apply-templates mode="indent" select=".">
+        <xsl:with-param name="depth" select="$depth"/>
+      </xsl:apply-templates>
+    </xsl:variable>
+    <xsl:value-of select="$indent"/>
     <span id="{generate-id(.)}">
-      <xsl:value-of select="replace(replace(string(.),'&lt;','&amp;lt;'),'&amp;','&amp;amp;')"/>
+      <xsl:value-of select="replace(replace(string(.),'&lt;','&amp;lt;'),'&amp;','&amp;amp;')
+                          ! (if (contains(.,' ')) then my:splitAtWords(., 40, concat('&#xA;',$indent)) else .)
+                          "/>
     </span>
   </xsl:template>
+
+          <!-- Grabbed from here (thanks Dimitre): https://stackoverflow.com/a/12352955/98316 -->
+          <xsl:function name="my:splitAtWords" as="xs:string?" xmlns:my="http://localhost" my:ns-hack="" xs:ns-hack="">
+           <xsl:param name="pText" as="xs:string?"/>
+           <xsl:param name="pMaxLen" as="xs:integer"/>
+           <xsl:param name="pRep" as="xs:string"/>
+
+           <xsl:sequence select=
+           "if($pText)
+             then
+              (for $line in replace($pText, concat('(^.{1,', $pMaxLen,'})\W.*'), '$1')
+                return
+                   concat($line, $pRep,
+                          my:splitAtWords(substring-after($pText,$line),$pMaxLen,$pRep))
+               )
+             else ()
+           "/>
+          </xsl:function>
+
 
   <xsl:template mode="to-string" match="@*">
     <xsl:text> </xsl:text>
