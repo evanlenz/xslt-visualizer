@@ -45,8 +45,12 @@
         -->
         <script src="assets/belay.js"/>
         <style>
+          body { overflow: hidden }
           #sliderWidget { position: fixed; width: 80% }
-          pre { margin:0}
+          #columns { margin: 0; height: 100vh; width: 100vw; }
+          #sourceTree, #resultTree, #rules { height: 100vh; width: 33vw; overflow: scroll }
+          #sourceTree, #rules, #resultTree { float: left; }
+          pre { margin:0; }
           .unmanifested { font-style: italic }
           svg { pointer-events: none; }
         </style>
@@ -214,6 +218,33 @@
               }
             };
 
+            var scrollTo = function(target, container) {
+              var scrollAdjustment = $(window).height() / 2;
+              var targetTop = target.offset().top - container.offset().top + container.scrollTop() - scrollAdjustment;
+
+              container.scrollTop(targetTop);
+            };
+
+            var scrollTrees = function() {
+              var focus = foci[slider[sliderPosition][0]];
+
+              var sourceNode  = $("#"+focus.contextId);
+              var rule        = $("#"+focus.ruleId);
+              var resultChunk = $("#"+focus.outputStart);
+
+              var sourceTree = $("#sourceTree");
+              var rules      = $("#rules");
+              var resultTree = $("#resultTree");
+
+              scrollTo(sourceNode, sourceTree);
+              scrollTo(rule, rules);
+              scrollTo(resultChunk, resultTree);
+            };
+
+            $("#sourceTree").scroll(function(){ drawConnectors(); });
+            $("#rules").scroll(function(){ drawConnectors(); });
+            $("#resultTree").scroll(function(){ drawConnectors(); });
+
             $("#sliderWidget").slider({
               min: -1,
               max: <xsl:value-of select="count($slider-array-arrays) - 1"/>,
@@ -222,6 +253,8 @@
                 sliderPosition = ui.value;
                 showAndHide();
                 drawConnectors();
+                if (sliderPosition != -1)
+                  scrollTrees();
               }
             });
 
@@ -330,9 +363,8 @@
             Breadth first?
           </div>
         </div>
-        <table cellspacing="50">
-          <tr valign="top">
-            <td style="vertical-align: top">
+        <div id="columns">
+          <div id="sourceTree">
               <pre>
                 <xsl:apply-templates mode="source-tree" select="$source-tree"/>
               </pre>
@@ -344,8 +376,8 @@
                 </div>
               </xsl:for-each>
               -->
-            </td>
-            <td style="vertical-align: top">
+          </div>
+          <div id="rules">
               <xsl:apply-templates mode="mode-tree" select="$rule-tree"/>
               <!--
               <xsl:for-each select="distinct-values($foci-array-objects//ruleId)">
@@ -355,16 +387,15 @@
                 </div>
               </xsl:for-each>
               -->
-            </td>
-            <td style="vertical-align: top">
+          </div>
+          <div id="resultTree">
               <pre>
                 <xsl:apply-templates>
                   <xsl:with-param name="depth" select="0" tunnel="yes"/>
                 </xsl:apply-templates>
               </pre>
-            </td>
-          </tr>
-        </table>
+          </div>
+        </div>
         <!--
         <pre>
           <xsl:value-of select="xdmp:quote($slider-array-arrays)"/>
@@ -456,9 +487,11 @@
       <invocationId>
         <xsl:value-of select="@invocation-id"/>
       </invocationId>
+      <!-- TODO: is this needed? If so, make sure it's escaped so apostrophes in the expression don't create JS parsing problems
       <invocationExpression>
         <xsl:value-of select="@invocation-expression"/>
       </invocationExpression>
+      -->
       <contextId>
         <xsl:value-of select="@context-id"/>
       </contextId>
