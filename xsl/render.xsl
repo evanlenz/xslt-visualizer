@@ -236,9 +236,9 @@
               var rules      = $("#rules");
               var resultTree = $("#resultTree");
 
-              scrollTo(sourceNode, sourceTree);
-              scrollTo(rule, rules);
-              scrollTo(resultChunk, resultTree);
+              if (sourceNode.is(":visible"))  scrollTo(sourceNode, sourceTree);
+              if (rule.is(":visible"))        scrollTo(rule, rules);
+              if (resultChunk.is(":visible")) scrollTo(resultChunk, resultTree);
             };
 
             $("#sourceTree").scroll(function(){ drawConnectors(); });
