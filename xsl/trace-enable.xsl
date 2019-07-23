@@ -100,6 +100,15 @@
           <xsl:template mode="xml-to-string" match="xsl:copy/@inherit-namespaces[. eq 'yes']
                                                   | xsl:copy/@copy-namespaces[. eq 'yes']"/>
 
+          <!-- Insert a line break before every sequence of two or more contigous spaces in attribute values.
+               This is a heuristic/guess as to what line breaks were present in the original, non-normalized value. -->
+          <xsl:template mode="xml-to-string" match="@*">
+            <xsl:next-match>
+              <xsl:with-param name="att-value" select="replace(., '( {4,})', '&#xA;  $1')"/>
+            </xsl:next-match>
+          </xsl:template>
+
+
   <xsl:template name="top-module">
     <xsl:param name="output-dir" tunnel="yes"/>
 
