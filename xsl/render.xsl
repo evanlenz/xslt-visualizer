@@ -365,9 +365,10 @@
         </div>
         <div id="columns">
           <div id="sourceTree">
-              <pre>
-                <xsl:apply-templates mode="source-tree" select="$source-tree"/>
-              </pre>
+            <br/>
+            <pre>
+              <xsl:apply-templates mode="source-tree" select="$source-tree"/>
+            </pre>
               <!--
               <xsl:for-each select="distinct-values($foci-array-objects//contextId)">
                 <xsl:sort select="."/> <!- - arbitrary stable order for now - ->
@@ -378,7 +379,8 @@
               -->
           </div>
           <div id="rules">
-              <xsl:apply-templates mode="mode-tree" select="$rule-tree"/>
+            <br/>
+            <xsl:apply-templates mode="mode-tree" select="$rule-tree"/>
               <!--
               <xsl:for-each select="distinct-values($foci-array-objects//ruleId)">
                 <xsl:sort select="."/> <!- - arbitrary stable order for now - ->
@@ -389,11 +391,12 @@
               -->
           </div>
           <div id="resultTree">
-              <pre>
-                <xsl:apply-templates>
-                  <xsl:with-param name="depth" select="0" tunnel="yes"/>
-                </xsl:apply-templates>
-              </pre>
+            <br/>
+            <pre>
+              <xsl:apply-templates>
+                <xsl:with-param name="depth" select="0" tunnel="yes"/>
+              </xsl:apply-templates>
+            </pre>
           </div>
         </div>
         <!--
