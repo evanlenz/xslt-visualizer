@@ -75,11 +75,14 @@
 
 
   <xsl:template mode="to-string" match="@*">
-    <xsl:text> </xsl:text>
-    <xsl:value-of select="name()"/>
-    <xsl:text>="</xsl:text>
-    <xsl:value-of select="replace(replace(replace(string(.),'&lt;','&amp;lt;'),'&amp;','&amp;amp;'),'&quot;','&amp;quot;')"/>
-    <xsl:text>"</xsl:text>
+    <xsl:text>&#xA; </xsl:text>
+    <xsl:apply-templates mode="indent" select=".."/>
+    <span id="{generate-id(.)}">
+      <xsl:value-of select="name()"/>
+      <xsl:text>="</xsl:text>
+      <xsl:value-of select="replace(replace(replace(string(.),'&lt;','&amp;lt;'),'&amp;','&amp;amp;'),'&quot;','&amp;quot;')"/>
+      <xsl:text>"</xsl:text>
+    </span>
   </xsl:template>
 
   <xsl:template mode="to-string" match="comment()">
