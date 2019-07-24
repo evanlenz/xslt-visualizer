@@ -229,11 +229,11 @@
             };
 
             var scrollTrees = function(doAnimate) {
-              var focus = foci[slider[sliderPosition][0]];
+              var firstFocus = foci[slider[sliderPosition][0]];
 
-              var sourceNode  = $("#"+focus.contextId);
-              var rule        = $("#"+focus.ruleId);
-              var resultChunk = $("#"+focus.outputStart);
+              var sourceNode  = $("#"+firstFocus.contextId);
+              var rule        = $("#"+firstFocus.ruleId);
+              var resultChunk = $("#"+firstFocus.outputStart);
 
               var sourceTree = $("#sourceTree");
               var rules      = $("#rules");
@@ -284,8 +284,8 @@
                 if (slider[j][0] == focusPosition)
                   break;
               }
-              var sliderPosition = j;
-              return sliderPosition;
+              var sliderPos = j;
+              return sliderPos;
             };
 
             var showResults = function(focus) {
