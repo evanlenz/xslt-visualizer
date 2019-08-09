@@ -313,6 +313,19 @@
               drawConnectors();
             });
 
+            var useExtraLineBreaks = $("#extraLineBreaks").is(":checked");
+            $("#extraLineBreaks").change(function() {
+              useExtraLineBreaks = $(this).is(":checked");
+              if (useExtraLineBreaks)
+                $(".resultSpace").show();
+              else
+                $(".resultSpace").hide();
+              var outputId = foci[slider[sliderPosition][0]].outputId;
+              var position = findSliderPosition(outputId);
+              sliderHandler(position, true);
+              drawConnectors();
+            });
+
             accumulateLines = $("#accumulateLines").is(":checked");
             $("#accumulateLines").change(function() {
               accumulateLines = $(this).is(":checked");
@@ -395,6 +408,9 @@
             <br/>
             <input id="breadthFirst" type="checkbox"/>
             Breadth first?
+            <br/>
+            <input id="extraLineBreaks" type="checkbox"/>
+            Extra line breaks?
           </div>
         </div>
         <div id="columns">
@@ -581,13 +597,13 @@
   <xsl:template match="trace:focus">
     <span id="{my:output-id(.)}" data-rule-id="{@rule-id}">
       <xsl:if test="$indent">
-        <br/>
+        <br class="resultSpace" style="display:none"/>
       </xsl:if>
       <xsl:apply-templates mode="indent" select="."/>
       <span class="manifested" style="display:none">
         <span class="start" id="{my:start-id(.)}"><!--▾-->▼<!--&#160;--></span>
         <xsl:if test="$indent">
-          <br/>
+          <br class="resultSpace" style="display:none"/>
         </xsl:if>
         <xsl:apply-templates mode="indent" select="."/>
         <xsl:apply-templates mode="to-string"/>
@@ -596,7 +612,7 @@
         </xsl:apply-templates>
         -->
         <xsl:if test="$indent">
-          <br/>
+          <br class="resultSpace" style="display:none"/>
         </xsl:if>
         <xsl:apply-templates mode="indent" select="."/>
         <span class="end" id="{my:end-id(.)}"><!--▴-->▲<!--&#160;--></span>
