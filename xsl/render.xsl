@@ -327,8 +327,12 @@
             initSlider();
 
             $("#breadthFirst").change(function() {
+              var outputId = foci[slider[sliderPosition][0]].outputId;
               breadthFirst = $(this).is(":checked");
               initSlider();
+              var newPosition = findSliderPosition(outputId);
+              $("#sliderWidget").slider("value", newPosition);
+              sliderHandler(newPosition, false);
               showAndHide();
               drawConnectors();
             });
