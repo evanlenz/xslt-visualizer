@@ -753,11 +753,14 @@
     <xsl:text>?&gt;</xsl:text>
   </xsl:template>
 
+  <xsl:template mode="indent" match="node()"><xsl:sequence select="''"/></xsl:template>
+  <!--
   <xsl:template mode="indent" match="node()">
     <xsl:param name="depth" tunnel="yes"/>
     <xsl:if test="$indent">
       <xsl:value-of select="string-join(for $n in (1 to $depth) return '  ','')"/>
     </xsl:if>
   </xsl:template>
+  -->
 
 </xsl:stylesheet>

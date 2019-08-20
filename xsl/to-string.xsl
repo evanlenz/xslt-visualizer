@@ -45,7 +45,9 @@
 
   <xsl:template mode="to-string" match="text()" xs:ns-hack="" my:ns-hack="">
     <xsl:param name="depth"/>
-    <xsl:text>&#xA;</xsl:text>
+    <xsl:if test="$trace:indent">
+      <xsl:text>&#xA;</xsl:text>
+    </xsl:if>
     <xsl:variable name="indent" as="xs:string">
       <xsl:apply-templates mode="indent" select=".">
         <xsl:with-param name="depth" select="$depth"/>
@@ -105,12 +107,15 @@
     <xsl:text>?&gt;</xsl:text>
   </xsl:template>
 
+  <xsl:template mode="indent" match="node()"><xsl:sequence select="''"/></xsl:template>
+  <!--
   <xsl:template mode="indent" match="node()">
     <xsl:param name="depth" tunnel="yes" select="0"/>
     <xsl:if test="$trace:indent">
       <xsl:value-of select="string-join(for $n in (1 to $depth) return '  ','')"/>
     </xsl:if>
   </xsl:template>
+  -->
 
   <xsl:template mode="to-string" match="xsl:stylesheet/@default-validation | xsl:stylesheet/@input-type-annotations"/>
 

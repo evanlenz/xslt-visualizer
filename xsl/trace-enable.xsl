@@ -119,7 +119,10 @@
 
       <out:import href="{$output-dir}{$flattened/trace:result-document[1]/@href}"/>
 
+      <out:param name="trace:indent" select="false()"/>
+      <!--
       <out:param name="trace:indent" select="true()"/>
+      -->
 
       <out:variable name="input-file-name" select="tokenize(base-uri(.),'/')[last()]"/>
       <out:variable name="traced-dir"      select="'traced/'"/>
@@ -133,7 +136,7 @@
             <out:apply-templates mode="to-string" select="."/>
           </source-doc>
         </out:variable>
-        <out:result-document href="{{$sources-dir}}{{trace:guid()}}.xml" method="xml">
+        <out:result-document href="{{$sources-dir}}{{trace:guid()}}.xml" method="xml" indent="no">
           <out:sequence select="$source-with-ids"/>
         </out:result-document>
         <!-- Copy rule-tree.xml as is for downstream use in rendering -->
