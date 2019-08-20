@@ -38,6 +38,8 @@
         <script src="assets/jquery/jquery-3.1.0.min.js"/>
         <script src="assets/jquery-ui/jquery-ui.min.js"/>
         <link rel="stylesheet" href="assets/jquery-ui/jquery-ui.css"/>
+        <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+
         <!--
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"/>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.js"/>
@@ -114,7 +116,8 @@
                 $("#"+focus.outputId).css("background-color",colors[invocationId]);
                 */
 
-                drawLine(focus.contextId, focus.ruleId);
+                var sourceNode  = $("#"+focus.contextId);
+                if (sourceNode.is(":visible")) drawLine(focus.contextId, focus.ruleId);
                 drawLine(focus.ruleId, focus.outputStart);
                 drawLine(focus.ruleId, focus.outputEnd);
                 //drawLine(focus.ruleId, focus.outputStart, "down");
@@ -350,6 +353,20 @@
               drawConnectors();
             });
 
+            $("#sourceTree").on("click", ".element > .glyphicon-minus", function() {
+              var icon = $(this);
+              icon.parent().children(".hideable").hide();
+              icon.attr("class","glyphicon glyphicon-plus");
+              drawConnectors();
+            });
+
+            $("#sourceTree").on("click", ".element > .glyphicon-plus", function() {
+              var icon = $(this);
+              icon.parent().children(".hideable").show();
+              icon.attr("class","glyphicon glyphicon-minus");
+              drawConnectors();
+            });
+
           });
         </script>
         <!-- tooltip configuration -->
@@ -471,6 +488,17 @@
               <xsl:apply-templates mode="#current" select="@* | node()"/>
             </xsl:copy>
           </xsl:template>
+
+          <xsl:template mode="source-tree" match="span[@class eq 'element']/span[1]">
+            <xsl:apply-templates mode="expand-collapse-icon" select=".."/>
+            <xsl:next-match/>
+          </xsl:template>
+
+                  <!-- Collapse button for non-leaf elements -->
+                  <xsl:template mode="expand-collapse-icon" match="span"/>
+                  <xsl:template mode="expand-collapse-icon" match="span[span/span/@class = ('element','comment')]">
+                    <span style="font-size:13px" class="glyphicon glyphicon-minus"/>
+                  </xsl:template>
 
 
   <xsl:template mode="array-list-syntax" match="array">

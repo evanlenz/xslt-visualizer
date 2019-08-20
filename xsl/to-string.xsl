@@ -15,15 +15,17 @@
   <xsl:apply-templates mode="indent" select="."/>
 </xsl:if>
 </xsl:if>
-  <span id="{generate-id(.)}">
-    <xsl:text>&lt;</xsl:text>
-    <xsl:value-of select="name()"/>
-    <xsl:apply-templates mode="#current" select="@*"/>
-    <xsl:text>></xsl:text>
-  </span>
-    <xsl:apply-templates mode="#current">
-      <xsl:with-param name="depth" select="$depth + 1" tunnel="yes"/>
-    </xsl:apply-templates>
+    <span class="element">
+      <span id="{generate-id(.)}">
+        <xsl:text>&lt;</xsl:text>
+        <xsl:value-of select="name()"/>
+        <xsl:apply-templates mode="#current" select="@*"/>
+        <xsl:text>></xsl:text>
+      </span>
+      <span class="hideable">
+        <xsl:apply-templates mode="#current">
+          <xsl:with-param name="depth" select="$depth + 1" tunnel="yes"/>
+        </xsl:apply-templates>
 <xsl:if test="$trace:indent">
 <!--
 <xsl:if test="*">
@@ -34,9 +36,11 @@
 </xsl:if>
 -->
 </xsl:if>
-    <xsl:text>&lt;/</xsl:text>
-    <xsl:value-of select="name()"/>
-    <xsl:text>></xsl:text>
+        <xsl:text>&lt;/</xsl:text>
+        <xsl:value-of select="name()"/>
+        <xsl:text>></xsl:text>
+      </span>
+    </span>
   </xsl:template>
 
   <xsl:template mode="to-string" match="text()" xs:ns-hack="" my:ns-hack="">
@@ -86,9 +90,11 @@
   </xsl:template>
 
   <xsl:template mode="to-string" match="comment()">
-    <xsl:text>&lt;--</xsl:text>
-    <xsl:value-of select="."/>
-    <xsl:text>--></xsl:text>
+    <span class="comment">
+      <xsl:text>&lt;--</xsl:text>
+      <xsl:value-of select="."/>
+      <xsl:text>--></xsl:text>
+    </span>
   </xsl:template>
 
   <xsl:template mode="to-string" match="processing-instruction()">
