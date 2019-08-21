@@ -92,13 +92,21 @@
 
 
           <xsl:template mode="match-content" match="&INVOKER;">
-            <trace:invocation invocation-id="{{{my:expression-for-invocation-id(.)}}}">
-              <xsl:copy-of select="@*"/>
-              <xsl:if test="not(self::xsl:apply-templates)">
-                <xsl:attribute name="type" select="local-name(.)"/>
-              </xsl:if>
-              <!-- no need to copy the with-params here (unless we decide to trace them later) -->
-            </trace:invocation>
+            <xsl:choose>
+              <!-- When inside xsl:variable, evaluate the call; don't replace it -->
+              <xsl:when test="ancestor::xsl:variable">
+                <xsl:next-match/>
+              </xsl:when>
+              <xsl:otherwise>
+                <trace:invocation invocation-id="{{{my:expression-for-invocation-id(.)}}}">
+                  <xsl:copy-of select="@*"/>
+                  <xsl:if test="not(self::xsl:apply-templates)">
+                    <xsl:attribute name="type" select="local-name(.)"/>
+                  </xsl:if>
+                  <!-- no need to copy the with-params here (unless we decide to trace them later) -->
+                </trace:invocation>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:template>
 
 
