@@ -739,6 +739,14 @@
     <xsl:text>"</xsl:text>
   </xsl:template>
 
+  <xsl:template mode="to-string" match="trace:attribute">
+    <xsl:text> </xsl:text>
+    <xsl:value-of select="@name"/>
+    <xsl:text>="</xsl:text>
+    <xsl:value-of select="replace(replace(replace(@value,'&lt;','&amp;lt;'),'&amp;','&amp;amp;'),'&quot;','&amp;quot;')"/>
+    <xsl:text>"</xsl:text>
+  </xsl:template>
+
   <xsl:template mode="to-string" match="comment()">
     <xsl:text>&lt;--</xsl:text>
     <xsl:value-of select="."/>

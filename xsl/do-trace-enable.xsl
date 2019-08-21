@@ -80,6 +80,14 @@
     <xsl:apply-templates mode="trace-enable" select="node() except xsl:param"/>
   </xsl:template>
 
+          <!-- Render a top-level attribute as a special element; this is not fool-proof, doesn't cover all cases -->
+          <xsl:template mode="match-content" match="xsl:template/xsl:attribute">
+            <out:variable name="trace:attribute" as="attribute()">
+              <xsl:next-match/>
+            </out:variable>
+            <trace:attribute name="{{name($trace:attribute)}}" value="{{$trace:attribute}}"/>
+          </xsl:template>
+
           <xsl:template mode="match-content" match="@* | node()">
             <xsl:copy>
               <xsl:apply-templates mode="#current" select="@* | node()"/>
