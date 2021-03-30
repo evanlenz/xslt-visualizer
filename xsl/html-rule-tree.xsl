@@ -47,9 +47,9 @@
     -->
   </xsl:template>
 
-  <xsl:template mode="jstree-xslt-snippets" match="/">
+  <xsl:template mode="jstree-xslt-snippets" match="rule-tree">
     <div style="display:none;">
-      <xsl:apply-templates mode="source-code" select="//rule"/>
+      <xsl:apply-templates mode="source-code" select=".//rule"/>
     </div>
   </xsl:template>
 
@@ -165,7 +165,7 @@
     <xsl:variable name="matches" select="$t:trace-doc/*/trace:matches/match[@rule-id eq $rule-id]
                                                                            [@stage   eq $stage]"/>
                                                                            -->
-    <xsl:variable name="matches" select="exists($all-matches/trace:focus[@rule-id eq $rule-id])"/>
+    <xsl:variable name="matches" select="exists($all-matches[@rule-id eq $rule-id])"/>
     <!--
     <xsl:variable name="jstree-config">
       <xsl:text>{ "icon":"glyphicon glyphicon-</xsl:text>

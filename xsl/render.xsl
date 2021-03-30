@@ -11,17 +11,14 @@
 
   <xsl:param name="indent" select="true()"/>
 
-  <xsl:variable name="input-file-name" select="tokenize(base-uri(.),'/')[last()]"/>
+  <xsl:variable name="rule-tree" select="/trace-data/rule-tree"/>
+  <xsl:variable name="source-docs" select="/trace-data/source-doc"/>
+  <xsl:variable name="all-matches" select="/trace-data/trace:focus"/>
 
-  <!-- ASSUMPTION: the primary input document is the initial focus and is a sibling of the matches directory -->
-  <xsl:variable name="rule-tree"   select="document  (resolve-uri(concat($input-file-name,'.rule-tree/rule-tree.xml'), base-uri(.)))"/>
-  <xsl:variable name="source-tree" select="collection(resolve-uri(concat($input-file-name,'.sources'),                 base-uri(.)))"/>
-  <xsl:variable name="all-matches" select="collection(resolve-uri(concat($input-file-name,'.matches'),                 base-uri(.)))
-                                         | ."/>  <!-- primary input document is the initial match -->
-
-  <xsl:template match="/">
+  <xsl:template match="/trace-data">
+    <xsl:variable name="initial-focus" select="trace:focus[@invocation-id eq 'initial']"/>
     <xsl:variable name="foci-array-objects"><!-- as="element()*">-->
-      <xsl:apply-templates mode="focus-object" select="trace:focus"/>
+      <xsl:apply-templates mode="focus-object" select="$initial-focus"/>
     </xsl:variable>
     <xsl:variable name="slider-array-arrays" as="element()*">
       <xsl:apply-templates mode="focus-array" select="$foci-array-objects//object"/>
@@ -434,7 +431,7 @@
           <div id="sourceTree">
             <br/>
             <pre>
-              <xsl:apply-templates mode="source-tree" select="$source-tree"/>
+              <xsl:apply-templates mode="source-tree" select="$source-docs"/>
             </pre>
               <!--
               <xsl:for-each select="distinct-values($foci-array-objects//contextId)">
@@ -460,7 +457,7 @@
           <div id="resultTree">
             <br/>
             <pre>
-              <xsl:apply-templates>
+              <xsl:apply-templates select="$initial-focus">
                 <xsl:with-param name="depth" select="0" tunnel="yes"/>
               </xsl:apply-templates>
             </pre>
@@ -478,7 +475,7 @@
     </html>
   </xsl:template>
 
-          <xsl:template mode="source-tree" match="/source-doc">
+          <xsl:template mode="source-tree" match="source-doc">
             <span id="{@id}">Ⓓ</span>
             <xsl:apply-templates mode="#current"/>
           </xsl:template>
@@ -601,7 +598,7 @@
 
   <xsl:template mode="focus-object" match="trace:invocation">
     <xsl:param name="depth" tunnel="yes" select="0"/>
-    <xsl:apply-templates mode="#current" select="$all-matches ! trace:focus[@invocation-id eq current()/@invocation-id]">
+    <xsl:apply-templates mode="#current" select="$all-matches[@invocation-id eq current()/@invocation-id]">
       <xsl:sort select="@context-position" data-type="number"/>
       <xsl:with-param name="depth" select="$depth + 1" tunnel="yes"/>
     </xsl:apply-templates>
@@ -689,7 +686,7 @@
           </xsl:template>
 
   <xsl:template mode="to-string" match="trace:invocation">
-    <xsl:apply-templates select="$all-matches ! trace:focus[@invocation-id eq current()/@invocation-id]">
+    <xsl:apply-templates select="$all-matches[@invocation-id eq current()/@invocation-id]">
       <xsl:sort select="@context-position" data-type="number"/>
     </xsl:apply-templates>
   </xsl:template>

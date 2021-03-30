@@ -124,23 +124,17 @@
       <out:param name="trace:indent" select="true()"/>
       -->
 
-      <out:variable name="input-file-name" select="tokenize(base-uri(.),'/')[last()]"/>
-      <out:variable name="traced-dir"      select="'traced/'"/>
-      <out:variable name="matches-dir"     select="concat($traced-dir, $input-file-name, '.matches/')"/>
-      <out:variable name="sources-dir"     select="concat($traced-dir, $input-file-name, '.sources/')"/>
-      <out:variable name="rule-tree-dir"   select="concat($traced-dir, $input-file-name, '.rule-tree/')"/>
-
       <out:template match="/">
         <out:variable name="source-with-ids">
           <source-doc id="{{generate-id(.)}}">
             <out:apply-templates mode="to-string" select="."/>
           </source-doc>
         </out:variable>
-        <out:result-document href="{{$sources-dir}}{{trace:guid()}}.xml" method="xml" indent="no">
+        <out:result-document href="sources/{{trace:guid()}}.xml" method="xml" indent="no">
           <out:sequence select="$source-with-ids"/>
         </out:result-document>
         <!-- Copy rule-tree.xml as is for downstream use in rendering -->
-        <out:result-document href="{{$rule-tree-dir}}rule-tree.xml" method="xml">
+        <out:result-document href="rule-tree/rule-tree.xml" method="xml">
           <out:copy-of select="document('{$output-dir}rule-tree.xml')"/>
         </out:result-document>
         <out:next-match>
