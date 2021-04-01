@@ -68,7 +68,7 @@
                   select="if ($trace:invocation-id eq 'initial') then 'initial'
                                                                  else trace:guid()"/>
     <out:if test="not($trace:inside-temporary-tree)">
-      <out:result-document href="{{$match-id}}" method="xml">
+      <out:result-document href="{{$match-id}}" method="xml" omit-xml-declaration="yes">
         <out:copy-of select="$trace:focus"/>
       </out:result-document>
     </out:if>

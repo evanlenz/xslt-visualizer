@@ -130,11 +130,11 @@
             <out:apply-templates mode="to-string" select="."/>
           </source-doc>
         </out:variable>
-        <out:result-document href="sources/{{trace:guid()}}.xml" method="xml" indent="no">
+        <out:result-document href="sources/{{trace:guid()}}.xml" method="xml" indent="no" omit-xml-declaration="yes">
           <out:sequence select="$source-with-ids"/>
         </out:result-document>
         <!-- Copy rule-tree.xml as is for downstream use in rendering -->
-        <out:result-document href="rule-tree/rule-tree.xml" method="xml">
+        <out:result-document href="rule-tree/rule-tree.xml" method="xml" omit-xml-declaration="yes">
           <out:copy-of select="document('{$output-dir}rule-tree.xml')"/>
         </out:result-document>
         <out:next-match>
