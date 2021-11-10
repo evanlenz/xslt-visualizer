@@ -17,7 +17,13 @@
 
   <xsl:variable name="full-source-dir" select="resolve-uri('.', base-uri(.))"/>
 
-  <xsl:variable name="gathered-code">      <xsl:apply-templates mode="gather-code" select="."/></xsl:variable>
+  <xsl:variable name="gathered-code">
+    <xsl:apply-templates mode="gather-code" select=".">
+      <!-- For the top-level module, start with just the filename in case a relative URI was supplied
+           (such that the base URI still contains dots as in "file:/foo/bar/bang/../../bat/baz.xml") -->
+      <xsl:with-param name="result-href" select="tokenize(base-uri(.),'/')[last()]"/>
+    </xsl:apply-templates>
+  </xsl:variable>
   <xsl:variable name="with-built-in-rules"><xsl:apply-templates mode="built-in-rules" select="$gathered-code"/></xsl:variable>
   <xsl:variable name="with-rule-ids">      <xsl:apply-templates mode="add-rule-ids" select="$with-built-in-rules"/></xsl:variable>
   <xsl:variable name="trace-enabled">      <xsl:apply-templates mode="trace-enable" select="$with-rule-ids"/></xsl:variable>
@@ -165,7 +171,8 @@
 
 
   <xsl:template mode="gather-code" match="/">
-    <trace:result-document href="{substring-after(base-uri(.),$full-source-dir)}">
+    <xsl:param name="result-href" select="substring-after(base-uri(.),$full-source-dir)"/>
+    <trace:result-document href="{$result-href}">
       <xsl:apply-templates mode="#current"/>
     </trace:result-document>
   </xsl:template>
